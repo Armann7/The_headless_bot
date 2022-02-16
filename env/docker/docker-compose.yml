@@ -1,0 +1,27 @@
+version: "3.8"
+
+services:
+  theheadless_bot:
+    image: armann/theheadless:latest
+    container_name: theheadless_bot
+    cap_drop:
+      - ALL
+    environment:
+      BOT_TOKEN:
+      API_ID:
+      API_HASH:
+      GOOGLE_API_KEY:
+    restart: unless-stopped
+    deploy:
+#      restart_policy:
+#        condition: any
+#        max_attempts: 3
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 256M
+        reservations:
+          cpus: '0.25'
+          memory: 64M
+    volumes:
+      - /opt/containers/theheadless_bot/data_local:/theheadless/data_local

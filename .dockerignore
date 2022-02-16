@@ -1,0 +1,10 @@
+.idea
+.git*
+__pycache__
+venv
+/.pytest_cache
+.dockerignore
+env/docs
+env/packages
+env/docker
+_old

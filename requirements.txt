@@ -1,0 +1,7 @@
+telethon
+pytest
+Google-Images-Search
+requests
+aiohttp
+bandit
+mypy

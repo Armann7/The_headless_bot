@@ -1,0 +1,48 @@
+# You can override the included template(s) by including variable overrides
+# SAST customization: https://docs.gitlab.com/ee/user/application_security/sast/#customizing-the-sast-settings
+# Secret Detection customization: https://docs.gitlab.com/ee/user/application_security/secret_detection/#customizing-settings
+# Dependency Scanning customization: https://docs.gitlab.com/ee/user/application_security/dependency_scanning/#customizing-the-dependency-scanning-settings
+# Note that environment variables can be set in several places
+# See https://docs.gitlab.com/ee/ci/variables/#cicd-variable-precedence
+image: tmaier/docker-compose:local
+
+services:
+  - docker:latest
+
+workflow:
+  rules:
+  - if: '$CI_PIPELINE_SOURCE == "web"'
+  - if: '$CI_COMMIT_TITLE =~ "^\#run_pipe"'
+
+stages:
+  - build-image
+  - test
+  - run
+#  - cleanup
+
+# Сделали образ
+build-image-job:
+  stage: build-image
+  script:
+    - docker build -f env/docker/Dockerfile -t armann/theheadless:latest .
+
+# Запустим тесты
+test-job:
+  stage: test
+  script:
+    - docker-compose -f env/docker/docker-compose.yml run --name "theheadless_test" --rm
+        theheadless_bot env/test_and_check.sh
+
+# Собрали и запустили контейнер
+run-job:
+  stage: run
+  before_script:
+    - docker stop theheadless_bot || exit_code_delete=$?
+    - docker rm theheadless_bot || exit_code_delete=$?
+  script:
+    - docker-compose -f env/docker/docker-compose.yml up -d --force-recreate
+
+#cleanup-job:
+#  stage: cleanup
+#  script:
+#    - docker rm theheadless_bot_test || exit_code_delete=$?
